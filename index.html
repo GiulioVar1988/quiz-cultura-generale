@@ -184,69 +184,67 @@
   </div>
 
   <script>
-    // ========================================================
-    // DATABASE DOMANDE
-    // Qui incolleremo le tue 2000 domande!
-    // ========================================================
     const databaseDomande = [
       {
-        domanda: "Qual è la capitale della Francia?",
-        opzioni: ["Lione", "Parigi", "Marsiglia", "Bordeaux"],
-        corretta: 1
-      },
-      {
-        domanda: "Quanti pianeti compongono il sistema solare?",
-        opzioni: ["7", "8", "9", "10"],
-        corretta: 1
-      },
-      {
-        domanda: "Chi ha dipinto la Gioconda?",
-        opzioni: ["Michelangelo", "Raffaello", "Leonardo da Vinci", "Donatello"],
-        corretta: 2
-      },
-      {
-        domanda: "Qual è il fiume più lungo d'Italia?",
-        opzioni: ["Adige", "Tevere", "Po", "Arno"],
-        corretta: 2
-      },
-      {
-        domanda: "Quale elemento chimico ha 'O' come simbolo?",
-        opzioni: ["Oro", "Osfio", "Ossigeno", "Odmio"],
-        corretta: 2
-      },
-      {
-        domanda: "In quale anno è caduto il muro di Berlino?",
-        opzioni: ["1989", "1991", "1975", "1985"],
+        domanda: "L'uomo è sbarcato sulla Luna?",
+        opzioni: ["Sì", "No, è rimasto in orbita ma non vi è atterrato", "No"],
         corretta: 0
       },
       {
-        domanda: "Qual è l'oceano più grande della Terra?",
-        opzioni: ["Atlantico", "Indiano", "Pacifico", "Artico"],
-        corretta: 2
-      },
-      {
-        domanda: "Chi ha scritto 'I Promessi Sposi'?",
-        opzioni: ["Giacomo Leopardi", "Alessandro Manzoni", "Dante Alighieri", "Giovanni Boccaccio"],
-        corretta: 1
-      },
-      {
-        domanda: "Qual è la formula chimica dell'acqua?",
-        opzioni: ["CO2", "H2O", "NaCl", "O2"],
-        corretta: 1
-      },
-      {
-        domanda: "Qual è il paese più grande del mondo per superficie?",
-        opzioni: ["Cina", "Stati Uniti", "Canada", "Russia"],
-        corretta: 3
-      },
-      {
-        domanda: "Quale animale è noto per essere il più veloce sulla terraferma?",
-        opzioni: ["Ghepardo", "Leone", "Gazzella", "Levriero"],
+        domanda: "La Corte Costituzionale:",
+        opzioni: [
+          "Giudica le leggi riguardo al rispetto della Costituzione e delle leggi costituzionali",
+          "Ha il compito di proporre le leggi di modifica della Costituzione",
+          "Ha il compito di fare le leggi costituzionali"
+        ],
         corretta: 0
       },
       {
-        domanda: "In che anno è iniziata la Seconda Guerra Mondiale?",
-        opzioni: ["1914", "1939", "1945", "1918"],
+        domanda: "Courmayeur si trova in:",
+        opzioni: ["Veneto", "Trentino-Alto Adige", "Valle d'Aosta"],
+        corretta: 2
+      },
+      {
+        domanda: "Quale tra questi comuni dista meno da Cagliari?",
+        opzioni: ["Guspini", "Carbonia", "Dolianova"],
+        corretta: 2
+      },
+      {
+        domanda: "Quando si parla di 'Piano Marshall', a quale periodo storico ci si riferisce?",
+        opzioni: [
+          "Il periodo tra le due grandi guerre mondiali (1918-1939)",
+          "Il primo dopoguerra (dopo il 1918)",
+          "Il secondo dopoguerra (dopo il 1945)"
+        ],
+        corretta: 2
+      },
+      {
+        domanda: "Quale tra i seguenti non è stato Presidente della Repubblica Italiana?",
+        opzioni: ["Francesco Cossiga", "Carlo Azeglio Ciampi", "Giulio Andreotti"],
+        corretta: 2
+      },
+      {
+        domanda: "Come si chiama l'Autorità Garante della Concorrenza e del Mercato?",
+        opzioni: ["CODACONS", "AGCM", "ANTITRUST"],
+        corretta: 1
+      },
+      {
+        domanda: "Chi è stato il successore di Lenin?",
+        opzioni: ["Stalin", "Trozkij", "Bucarin"],
+        corretta: 0
+      },
+      {
+        domanda: "Cosa è il Quirinale?",
+        opzioni: [
+          "Gli Uffici di rappresentanza del Vaticano in Italia",
+          "La sede ufficiale del Presidente della Repubblica",
+          "La sede del Capo del Governo"
+        ],
+        corretta: 1
+      },
+      {
+        domanda: "L'Isola del Giglio si trova in:",
+        opzioni: ["Lazio", "Toscana", "Umbria"],
         corretta: 1
       }
     ];
@@ -258,7 +256,7 @@
     function startQuiz() {
       punteggio = 0;
       indiceDomandaCorrente = 0;
-      domandeSelezionate = estraiDomandeRandom(10);
+      domandeSelezionate = estraiDomandeRandom(Math.min(10, databaseDomande.length));
 
       document.getElementById('results-screen').classList.add('hidden');
       document.getElementById('quiz-screen').classList.remove('hidden');
@@ -278,7 +276,7 @@
     function showQuestion() {
       const data = domandeSelezionate[indiceDomandaCorrente];
 
-      document.getElementById('question-counter').textContent = `Domanda ${indiceDomandaCorrente + 1} di 10`;
+      document.getElementById('question-counter').textContent = `Domanda ${indiceDomandaCorrente + 1} di ${domandeSelezionate.length}`;
       document.getElementById('question-text').textContent = data.domanda;
       document.getElementById('next-btn').classList.add('hidden');
 
@@ -317,7 +315,7 @@
     function nextQuestion() {
       indiceDomandaCorrente++;
 
-      if (indiceDomandaCorrente < 10) {
+      if (indiceDomandaCorrente < domandeSelezionate.length) {
         showQuestion();
       } else {
         showResults();
@@ -328,14 +326,15 @@
       document.getElementById('quiz-screen').classList.add('hidden');
       document.getElementById('results-screen').classList.remove('hidden');
 
-      document.getElementById('final-score').textContent = `Hai indovinato ${punteggio} risposte su 10!`;
+      document.getElementById('final-score').textContent = `Hai indovinato ${punteggio} risposte su ${domandeSelezionate.length}!`;
 
       let messaggio = "";
-      if (punteggio === 10) {
+      const perc = (punteggio / domandeSelezionate.length) * 100;
+      if (perc === 100) {
         messaggio = "Perfetto! Sei un vero pozzo di scienza! 🏆";
-      } else if (punteggio >= 8) {
+      } else if (perc >= 80) {
         messaggio = "Ottimo lavoro! Hai un'eccellente cultura generale! 🌟";
-      } else if (punteggio >= 5) {
+      } else if (perc >= 50) {
         messaggio = "Buon risultato! Un po' di ripasso e sarai imbattibile! 👍";
       } else {
         messaggio = "Non ti preoccupare! Rilassati e riprova, imparerai cose nuove! ☕";
