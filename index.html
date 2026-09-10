@@ -106,7 +106,7 @@
     
     <!-- Schermata Quiz -->
     <div id="quiz-screen">
-        <div class="progress" id="progress">Domanda 1 di 10</div>
+        <div class="progress" id="progress">Domanda 1 di 20</div>
         <div class="question" id="question-text">Testo della domanda...</div>
         <div class="options" id="options-container">
             <!-- Bottoni opzioni generati dinamicamente -->
@@ -117,7 +117,7 @@
     <div id="result-screen" class="result-screen hide">
         <h2>Risultato Finale</h2>
         <p>Hai risposto correttamente a:</p>
-        <div class="score" id="final-score">0 / 10</div>
+        <div class="score" id="final-score">0 / 20</div>
         <p>Il tuo livello di cultura è:</p>
         <div class="level-badge" id="culture-level">-</div>
         <br><br>
@@ -126,7 +126,7 @@
 </div>
 
 <script>
-// Database di 82 domande uniche
+// Database di 120 domande
 const rawDatabase = [
     { q: "Qual è la capitale della Francia?", options: ["Lione", "Marsiglia", "Parigi", "Bordeaux"], correct: 2 },
     { q: "Quale pianeta è noto come il 'Pianeta Rosso'?", options: ["Venere", "Marte", "Giove", "Saturno"], correct: 1 },
@@ -153,13 +153,15 @@ const rawDatabase = [
     { q: "Qual è l'ingrediente principale della vera pizza Margherita insieme al pomodoro e al basilico?", options: ["Mozzarella", "Parmigiano", "Fontina", "Gorgonzola"], correct: 0 },
     { q: "Quale paese ha la forma di uno stivale?", options: ["Grecia", "Italia", "Portogallo", "Croazia"], correct: 1 },
     { q: "Quanti minuti ci sono in un'ora?", options: ["50", "60", "90", "100"], correct: 1 },
+    { q: "Quale nazionale di calcio ha vinto il Mondiale del 2026?", options: ["Argentina", "Francia", "Spagna", "Brasile"], correct: 2 },
+    { q: "Quale squadra di calcio ha vinto la Champions League nella stagione 2025-2026 a Budapest?", options: ["Real Madrid", "Arsenal", "Manchester City", "Paris Saint-Germain"], correct: 3 },
     { q: "Quanti Palloni d'Oro ha vinto in carriera Lionel Messi?", options: ["5", "7", "8", "9"], correct: 2 },
     { q: "Quale squadra ha vinto più volte la Champions League nella storia del calcio?", options: ["Milan", "Real Madrid", "Liverpool", "Bayern Monaco"], correct: 1 },
     { q: "Chi è il marcatore più prolifico nella storia della nazionale di calcio italiana?", options: ["Alessandro Del Piero", "Francesco Totti", "Gigi Riva", "Roberto Baggio"], correct: 2 },
     { q: "In quale sport si assegna il famoso trofeo della 'Coppa Davis'?", options: ["Rugby", "Tennis", "Pallanuoto", "Golf"], correct: 1 },
     { q: "Quale pilota detiene il record del maggior numero di Mondiali di F1 vinti (7), a pari merito con Schumacher?", options: ["Lewis Hamilton", "Max Verstappen", "Sebastian Vettel", "Fernando Alonso"], correct: 0 },
     { q: "Quanti minuti dura una normale partita di basket NBA (esclusi supplementari)?", options: ["40 minuti", "45 minuti", "48 minuti", "60 minuti"], correct: 2 },
-    { q: "Di quale nazionalità è il campione di tennis Jannik Sinner?", options: ["Austriaca", "Italiana", "Svizzera", "Tedesta"], correct: 1 },
+    { q: "Di quale nazionalità è il campione di tennis Jannik Sinner?", options: ["Austriaca", "Italiana", "Svizzera", "Tedesca"], correct: 1 },
     { q: "Quanti anelli olimpici ci sono sulla bandiera ufficiale dei Giochi?", options: ["4", "5", "6", "7"], correct: 1 },
     { q: "Chi è l'autore della celebre opera teatrale 'Amleto'?", options: ["Charles Dickens", "William Shakespeare", "Dante Alighieri", "Oscar Wilde"], correct: 1 },
     { q: "Quale organo del corpo umano produce l'insulina?", options: ["Il fegato", "Il pancreas", "I reni", "La milza"], correct: 1 },
@@ -198,6 +200,8 @@ const rawDatabase = [
     { q: "Quale strumento musicale a tastiera possiede solitamente 88 tasti?", options: ["Organo", "Pianoforte", "Fisarmonica", "Clavicembalo"], correct: 1 },
     { q: "Quale parte della pianta assorbe l'acqua e i nutrimenti dal terreno?", options: ["Le foglie", "Il fusto", "I fiori", "Le radici"], correct: 3 },
     { q: "Quale paese europeo è famoso per i mulini a vento e i tulipani?", options: ["Paesi Bassi / Olanda", "Belgio", "Danimarca", "Svezia"], correct: 0 },
+    { q: "Quanti sono i gironi (o cantiche/regni) descritti nella Divina Commedia di Dante?", options: ["2", "3", "4", "7"], correct: 1 },
+    { q: "Quale gruppo pop svedese ha vinto l'Eurovision negli anni '70 con 'Waterloo'?", options: ["Queen", "ABBA", "Bee Gees", "Pink Floyd"], correct: 1 },
     { q: "Quale famosissimo album dei Pink Floyd del 1973 mostra un prisma in copertina?", options: ["The Wall", "Wish You Were Here", "Animals", "The Dark Side of the Moon"], correct: 3 },
     { q: "Quale chitarrista è l'autore di 'Layla' e 'Wonderful Tonight'?", options: ["Jimi Hendrix", "Eric Clapton", "Jimmy Page", "David Gilmour"], correct: 1 },
     { q: "Quale artista giamaicano ha portato il reggae al successo con 'No Woman, No Cry'?", options: ["Bob Marley", "Peter Tosh", "Jimmy Cliff", "Shaggy"], correct: 0 },
@@ -209,7 +213,42 @@ const rawDatabase = [
     { q: "Quale sostanza permette alle piante di effettuare la fotosintesi?", options: ["Clorofilla", "Emoglobina", "Melatonina", "Glucosio"], correct: 0 },
     { q: "In quale anno si è conclusa la Seconda Guerra Mondiale?", options: ["1918", "1939", "1945", "1968"], correct: 2 },
     { q: "Dove si trova l'originale del David scolpito da Michelangelo?", options: ["Musei Vaticani", "Louvre", "Galleria dell'Accademia (Firenze)", "Uffizi"], correct: 2 },
-    { q: "Quale band britannica era guidata da Freddie Mercury?", options: ["Beatles", "Queen", "Pink Floyd", "Led Zeppelin"], correct: 1 }
+    // 35 Nuove Domande
+    { q: "Qual è la capitale della Grecia?", options: ["Atene", "Salonicco", "Sassari", "Nicosia"], correct: 0 },
+    { q: "Quale celebre regista ha diretto il film 'La vita è bella'?", options: ["Federico Fellini", "Roberto Benigni", "Bernardo Bertolucci", "Paolo Sorrentino"], correct: 1 },
+    { q: "In quale città si trova la celebre Cattedrale di Notre-Dame?", options: ["Lione", "Parigi", "Marsiglia", "Nizza"], correct: 1 },
+    { q: "Qual è l'uccello noto per essere incapace di volare ed è nativo dell'Antartide?", options: ["Albatro", "Pinguino", "Gabbiano", "Pellicano"], correct: 1 },
+    { q: "Quale scienziata fu la prima donna a vincere il Premio Nobel (e l'unica in due campi diversi)?", options: ["Rosalind Franklin", "Marie Curie", "Rita Levi-Montalcini", "Lise Meitner"], correct: 1 },
+    { q: "In quale città italiana si svolge lo storico palio equestre tra le Contrade?", options: ["Arezzo", "Lucca", "Siena", "Perugia"], correct: 2 },
+    { q: "Qual è il deserto caldo più grande del mondo?", options: ["Deserto del Gobi", "Deserto del Sahara", "Deserto di Atacama", "Deserto del Kalahari"], correct: 1 },
+    { q: "Chi è l'autore delle favole 'La Sirenetta' e 'Il brutto anatroccolo'?", options: ["Fratelli Grimm", "Hans Christian Andersen", "Charles Perrault", "Gianni Rodari"], correct: 1 },
+    { q: "Quale cantante italiana è famosa per successi storici come 'Minuetto' e 'Almeno tu nell'universo'?", options: ["Mina", "Mia Martini", "Loredana Bertè", "Ornella Vanoni"], correct: 1 },
+    { q: "In quale stato si trovano i famosi megaliti di Stonehenge?", options: ["Irlanda", "Scozia", "Inghilterra", "Galles"], correct: 2 },
+    { q: "Quale re Mida della mitologia greca trasformava in cosa qualunque toccasse?", options: ["Ferro", "Argento", "Bronzo", "Oro"], correct: 3 },
+    { q: "Quale scultore ha realizzato il famoso 'Pensatore'?", options: ["Auguste Rodin", "Antonio Canova", "Gian Lorenzo Bernini", "Donatello"], correct: 0 },
+    { q: "In quale anno fu scoperto il continente americano da Cristoforo Colombo?", options: ["1291", "1492", "1515", "1789"], correct: 1 },
+    { q: "Qual è il gas nobile presente in abbondanza nell'atmosfera terrestre dopo l'azoto e l'ossigeno?", options: ["Elio", "Neon", "Argon", "Kripton"], correct: 2 },
+    { q: "Quale gruppo musicale britannico ha inciso il brano 'Hey Jude'?", options: ["The Rolling Stones", "The Beatles", "The Who", "The Kinks"], correct: 1 },
+    { q: "Quale animale è il simbolo nazionale della Cina?", options: ["Tigre", "Panda gigante", "Dragone", "Orso bruno"], correct: 1 },
+    { q: "Qual è la capitale della Svizzera?", options: ["Zurigo", "Ginevra", "Berna", "Basilea"], correct: 2 },
+    { q: "Chi era il dio greco del mare e delle acque?", options: ["Zeus", "Ades", "Poseidone", "Ares"], correct: 2 },
+    { q: "Quale catena montuosa separa l'Europa dall'Asia?", options: ["Alpi", "Pirenei", "Monti Urali", "Carpazi"], correct: 2 },
+    { q: "Quale noto attore ha interpretato il capitano Jack Sparrow nei film 'I Pirati dei Caraibi'?", options: ["Brad Pitt", "Johnny Depp", "Tom Cruise", "Leonardo DiCaprio"], correct: 1 },
+    { q: "Qual è il fiume più lungo del mondo?", options: ["Mississippi", "Nilo", "Rio delle Amazzoni", "Danubio"], correct: 2 },
+    { q: "In quale città italiana si può visitare la famosa Cappella degli Scrovegni affrescata da Giotto?", options: ["Verona", "Padova", "Vicenza", "Treviso"], correct: 1 },
+    { q: "Come si chiama l'unita di misura della frequenza equivalente a un ciclo al secondo?", options: ["Watt", "Volt", "Hertz", "Joule"], correct: 2 },
+    { q: "Quale commediografo ateniese scrisse 'Le nuvole' e 'Le rane'?", options: ["Aristofane", "Sofocle", "Euripide", "Eschilo"], correct: 0 },
+    { q: "Chi è l'autore del dipinto 'Urlo' (1893)?", options: ["Vincent van Gogh", "Edvard Munch", "Paul Gauguin", "Claude Monet"], correct: 1 },
+    { q: "Qual è il secondo pianeta più vicino al Sole?", options: ["Mercurio", "Venere", "Terra", "Marte"], correct: 1 },
+    { q: "In quale paese nacque il compositore Wolfgang Amadeus Mozart?", options: ["Germania", "Austria", "Ungheria", "Svizzera"], correct: 1 },
+    { q: "Come si chiama l'imponente anfiteatro romano simbolo della città di Roma?", options: ["Circo Massimo", "Colosseo", "Pantheon", "Foro Romano"], correct: 1 },
+    { q: "Quale continente ha la popolazione più numerosa del pianeta?", options: ["Africa", "Asia", "Europa", "America"], correct: 1 },
+    { q: "Quale re inglese si separò dalla Chiesa Cattolica creando la Chiesa d'Inghilterra?", options: ["Enrico VIII", "Carlo I", "Giacomo I", "Riccardo III"], correct: 0 },
+    { q: "Quale celebre regista ha diretto 'Pulp Fiction' e 'Django Unchained'?", options: ["Steven Spielberg", "Quentin Tarantino", "Martin Scorsese", "Christopher Nolan"], correct: 1 },
+    { q: "Quale isola del Mediterraneo ha come capitale la città di La Valletta?", options: ["Cipro", "Malta", "Maiorca", "Rodi"], correct: 1 },
+    { q: "Chi ha scritto 'I promessi sposi'?", options: ["Giacomo Leopardi", "Alessandro Manzoni", "Giovanni Verga", "Giosuè Carducci"], correct: 1 },
+    { q: "Quale minerale rappresenta il grado 10 (il più duro) della scala di Mohs?", options: ["Quarzo", "Rubino", "Smeraldo", "Diamante"], correct: 3 },
+    { q: "Qual è la valuta ufficiale in uso nel Regno Unito?", options: ["Euro", "Sterlina britannica", "Franco", "Corona"], correct: 1 }
 ];
 
 let selectedQuestions = [];
@@ -227,10 +266,10 @@ function startQuiz() {
     score = 0;
     currentQuestionIndex = 0;
     
-    // Mescola e seleziona 10 domande casuali
+    // Mescola ed estrae 20 domande casuali su 120
     let dbCopy = JSON.parse(JSON.stringify(rawDatabase));
     shuffleArray(dbCopy);
-    selectedQuestions = dbCopy.slice(0, 10);
+    selectedQuestions = dbCopy.slice(0, 20);
 
     document.getElementById('quiz-screen').classList.remove('hide');
     document.getElementById('result-screen').classList.add('hide');
@@ -240,15 +279,14 @@ function startQuiz() {
 
 function showQuestion() {
     const q = selectedQuestions[currentQuestionIndex];
-    document.getElementById('progress').innerText = `Domanda ${currentQuestionIndex + 1} di 10`;
+    document.getElementById('progress').innerText = `Domanda ${currentQuestionIndex + 1} di 20`;
     document.getElementById('question-text').innerText = q.q;
     
     const optionsContainer = document.getElementById('options-container');
     optionsContainer.innerHTML = '';
 
-    // Prepariamo le opzioni mantenendo la risposta corretta tracciata
     let opts = q.options.map((opt, index) => ({ text: opt, isCorrect: index === q.correct }));
-    shuffleArray(opts); // Mescoliamo l'ordine delle opzioni
+    shuffleArray(opts);
 
     opts.forEach(option => {
         const btn = document.createElement('button');
@@ -265,7 +303,7 @@ function selectOption(isCorrect) {
     }
     
     currentQuestionIndex++;
-    if (currentQuestionIndex < 10) {
+    if (currentQuestionIndex < 20) {
         showQuestion();
     } else {
         showResults();
@@ -276,20 +314,19 @@ function showResults() {
     document.getElementById('quiz-screen').classList.add('hide');
     document.getElementById('result-screen').classList.remove('hide');
     
-    document.getElementById('final-score').innerText = `${score} / 10`;
+    document.getElementById('final-score').innerText = `${score} / 20`;
     
-    // Calcolo del livello culturale
+    // Calcolo del livello culturale su 20 risposte
     let level = "";
-    if (score === 10) level = "🏆 Genio Enciclopedico";
-    else if (score >= 8) level = "🧠 Cultura Superiore";
-    else if (score >= 6) level = "📚 Buona Cultura Generale";
-    else if (score >= 4) level = "🐣 Livello Base / In Erba";
+    if (score === 20) level = "🏆 Genio Enciclopedico";
+    else if (score >= 16) level = "🧠 Cultura Superiore";
+    else if (score >= 12) level = "📚 Buona Cultura Generale";
+    else if (score >= 8) level = "🐣 Livello Base / In Erba";
     else level = "✏️ Da Ripassare";
     
     document.getElementById('culture-level').innerText = level;
 }
 
-// Avvio automatico all'apertura della pagina
 startQuiz();
 </script>
 
