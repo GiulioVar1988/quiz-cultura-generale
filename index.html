@@ -132,8 +132,19 @@
         .score-display {
             font-size: 24px;
             text-align: center;
-            margin: 20px 0;
+            margin: 15px 0 5px 0;
             font-weight: bold;
+        }
+
+        .evaluation-display {
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: var(--primary-color);
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #e9f2ff;
         }
 
         .review-list {
@@ -177,7 +188,7 @@
         <div class="progress" id="progress">Domanda 1 di 10</div>
         <div class="question-text" id="question-text">Testo della domanda...</div>
         <div class="options-container" id="options-container">
-            <!-- Le opzioni verranno inserite via JS -->
+            <!-- Opzioni dinamiche -->
         </div>
         <div class="feedback" id="feedback"></div>
         <button class="btn" id="next-btn" style="display: none;" onclick="nextQuestion()">Prossima Domanda</button>
@@ -187,6 +198,7 @@
     <div id="result-screen" class="screen">
         <h2>Quiz Completato!</h2>
         <div class="score-display" id="score-display">Il tuo punteggio: 0 / 10</div>
+        <div class="evaluation-display" id="evaluation-display">Giudizio...</div>
         <div id="review-container" class="review-list">
             <!-- Riepilogo risposte -->
         </div>
@@ -195,8 +207,9 @@
 </div>
 
 <script>
-    // Banca Dati Domande (120 Domande)
+    // Banca Dati Domande (170 Domande Uniche)
     const questionBank = [
+        // --- 120 Domande Iniziali ---
         { q: "Qual è la capitale della Francia?", options: ["Londra", "Parigi", "Berlino", "Madrid"], answer: 1 },
         { q: "Quale pianeta è noto come il Pianeta Rosso?", options: ["Venere", "Giove", "Marte", "Saturno"], answer: 2 },
         { q: "Chi ha dipinto la Gioconda?", options: ["Michelangelo", "Raffaello", "Leonardo da Vinci", "Donatello"], answer: 2 },
@@ -282,8 +295,6 @@
         { q: "Quale pianeta è il più grande del sistema solare?", options: ["Saturno", "Nettuno", "Giove", "Uranio"], answer: 2 },
         { q: "Chi ha dipinto 'I Girasoli'?", options: ["Claude Monet", "Vincent van Gogh", "Paul Gauguin", "Edouard Manet"], answer: 1 },
         { q: "Qual è la stella più vicina alla Terra?", options: ["Alpha Centauri", "Sirio", "Il Sole", "Polaris"], answer: 2 },
-        
-        // Nuove 35 domande
         { q: "Qual è la capitale della Scozia?", options: ["Glasgow", "Edimburgo", "Aberdeen", "Dundee"], answer: 1 },
         { q: "Chi ha scritto '1984'?", options: ["Aldous Huxley", "George Orwell", "Ray Bradbury", "J.D. Salinger"], answer: 1 },
         { q: "In quale anno è affondato il Titanic?", options: ["1905", "1912", "1918", "1923"], answer: 1 },
@@ -316,9 +327,62 @@
         { q: "Qual è la capitale della Turchia?", options: ["Istanbul", "Ankara", "Izmir", "Bursa"], answer: 1 },
         { q: "In quale città si trova il celebre museo 'Il Louvre'?", options: ["Londra", "Parigi", "Roma", "Amsterdam"], answer: 1 },
         { q: "Qual è il rettile più grande del mondo?", options: ["Drago di Komodo", "Pitone reticolato", "Coccodrillo marino", "Anakonda verde"], answer: 2 },
-        { q: "Chi ha diretto il film 'La vita è bella'?", options: ["Federico Fellini", "Roberto Benigni", "Bernardo Bertolucci", "Paolo Sorrentino"], answer: 1 },
+        { q: "Chi ha directed il film 'La vita è bella'?", options: ["Federico Fellini", "Roberto Benigni", "Bernardo Bertolucci", "Paolo Sorrentino"], answer: 1 },
         { q: "Qual è la capitale della Polonia?", options: ["Cracovia", "Varsavia", "Gdańsk", "Wrocław"], answer: 1 },
-        { q: "Quanti anni dura un secolo?", options: ["10", "50", "100", "1000"], answer: 2 }
+        { q: "Quanti anni dura un secolo?", options: ["10", "50", "100", "1000"], answer: 2 },
+
+        // --- Nuove 50 Domande (Storia, Cinema, Date, Diritti) ---
+        { q: "In quale anno fu fondato a Milano il movimento dei Fasci Italiani di Combattimento da Benito Mussolini?", options: ["1915", "1919", "1922", "1925"], answer: 1 },
+        { q: "In quale mese e anno avvenne la famosa Marcia su Roma?", options: ["Ottobre 1922", "Maggio 1921", "Novembre 1923", "Giugno 1920"], answer: 0 },
+        { q: "In che anno iniziò la costruzione del Muro di Berlino?", options: ["1948", "1955", "1961", "1968"], answer: 2 },
+        { q: "La cosiddetta 'Primavera di Praga', periodo di liberalizzazione politica in Cecoslovacchia, avvenne in quale anno?", options: ["1956", "1968", "1977", "1989"], answer: 1 },
+        { q: "In quale anno avvenne la Rivoluzione Russa che portò alla caduta del regime zarista?", options: ["1905", "1914", "1917", "1922"], answer: 2 },
+        { q: "Chi fu l'ultimo Zar di Russia, deposto durante la Rivoluzione del 1917?", options: ["Alessandro III", "Nicola II", "Pietro il Grande", "Alessandro II"], answer: 1 },
+        { q: "In quale città americana venne assassinato il presidente John F. Kennedy nel 1963?", options: ["New York", "Washington D.C.", "Dallas", "Houston"], answer: 2 },
+        { q: "In che anno venne assassinato il leader dei diritti civili Martin Luther King Jr.?", options: ["1963", "1965", "1968", "1971"], answer: 2 },
+        { q: "In quale famosa manifestazione Martin Luther King pronunciò lo storico discorso 'I Have a Dream'?", options: ["Marcia su Washington (1963)", "Marcia da Selma a Montgomery", "Boicottaggio dei bus di Montgomery", "Protesta di Birmingham"], answer: 0 },
+        { q: "In che anno fu assassinato il leader afroamericano e attivista Malcolm X?", options: ["1961", "1965", "1968", "1970"], answer: 1 },
+        { q: "Quale importante organizzazione fu fondata da Malcolm X nel 1964 dopo l'allontanamento dalla Nation of Islam?", options: ["Black Panther Party", "NAACP", "Organizzazione per l'Unità Afroamericana (OAAU)", "SCLC"], answer: 2 },
+        { q: "Quale capolavoro di fantascienza del 1968 fu diretto da Stanley Kubrick?", options: ["Blade Runner", "2001: Odissea nello spazio", "E.T. l'extra-terrestre", "Incontri ravvicinati del terzo tipo"], answer: 1 },
+        { q: "In quale celebre film horror di Stanley Kubrick Jack Nicholson interpreta il personaggio di Jack Torrance?", options: ["Shining", "Arancia Meccanica", "Eyes Wide Shut", "Full Metal Jacket"], answer: 0 },
+        { q: "Per quale film Jack Nicholson ha vinto il suo primo Premio Oscar come miglior attore protagonista nel 1976?", options: ["Qualcuno volò sul nido del cuculo", "Shining", "Batman", "Qualcosa è cambiato"], answer: 0 },
+        { q: "In quale cult del 1967 Dustin Hoffman interpreta il giovane Benjamin Braddock?", options: ["Kramer contro Kramer", "Il laureato", "Rain Man", "Tootsie"], answer: 1 },
+        { q: "In quale film del 1988 Dustin Hoffman interpreta un uomo affetto da autismo accanto a Tom Cruise?", options: ["Rain Man", "Tootsie", "Marathon Man", "Un uomo da marciapiede"], answer: 0 },
+        { q: "Dove ebbe origine la Prima Rivoluzione Industriale nella seconda metà del Settecento?", options: ["Francia", "Stati Uniti", "Gran Bretagna", "Germania"], answer: 2 },
+        { q: "Quale invenzione tecnologica fu il simbolo fondamentale della Prima Rivoluzione Industriale?", options: ["Il motore a scoppio", "La macchina a vapore di Watt", "La lampadina elettrica", "Il telegrafo"], answer: 1 },
+        { q: "In che anno iniziò la Guerra del Vietnam con l'intervento diretto delle truppe statunitensi su larga scala?", options: ["1955", "1965", "1972", "1975"], answer: 1 },
+        { q: "Quale importante trattato del 1957 istituì la Comunità Economica Europea (CEE)?", options: ["Trattato di Maastricht", "Trattato di Roma", "Trattato di Parigi", "Trattato di Versailles"], answer: 1 },
+        { q: "Chi era il Primo Ministro britannico durante la maggior parte della Seconda Guerra Mondiale?", options: ["Neville Chamberlain", "Winston Churchill", "Clement Attlee", "Anthony Eden"], answer: 1 },
+        { q: "In quale anno fu proclamata la Repubblica Italiana a seguito del referendum istituzionale?", options: ["1943", "1945", "1946", "1948"], answer: 2 },
+        { q: "Chi fu eletto primo Presidente della Repubblica Italiana nel 1948?", options: ["Alcide De Gasperi", "Enrico De Nicola", "Luigi Einaudi", "Sandro Pertini"], answer: 2 },
+        { q: "Quale evento del 1962 portò il mondo sull'orlo di una guerra nucleare tra USA e URSS?", options: ["La crisi dei missili di Cuba", "La guerra di Corea", "Il blocco di Berlino", "L'invasione dell'Ungheria"], answer: 0 },
+        { q: "In quale anno si dissolse ufficialmente l'Unione Sovietica (URSS)?", options: ["1989", "1991", "1993", "1995"], answer: 1 },
+        { q: "Chi fu l'ultimo segretario generale del Partito Comunista dell'Unione Sovietica, promotore della Perestrojka?", options: ["Nikita Chruščëv", "Leonid Brežnev", "Mikhail Gorbačëv", "Boris El'cin"], answer: 2 },
+        { q: "Quale famoso film di Stanley Kubrick tratto da un romanzo di Anthony Burgess racconta la storia di Alex e della 'ultraviolenza'?", options: ["Full Metal Jacket", "Barry Lyndon", "Arancia Meccanica", "Dr. Strangelove"], answer: 2 },
+        { q: "In quale film del 1979 Dustin Hoffman recita al fianco di Meryl Streep sul tema del divorzio e dell'affidamento di un figlio?", options: ["Kramer contro Kramer", "Tootsie", "Cane di paglia", "Tutti gli uomini del presidente"], answer: 0 },
+        { q: "Quale iconico personaggio interpretò Jack Nicholson nel film 'Batman' diretto da Tim Burton nel 1989?", options: ["Pinguino", "Joker", "Enigmista", "Due Facce"], answer: 1 },
+        { q: "In quale anno fu firmata la Dichiarazione Universale dei Diritti Umani dalle Nazioni Unite?", options: [[
+        "1945", "1948", "1950", "1955"], answer: 1 },
+        { q: "Quale chimico e biologo francese ha messo a punto il processo di sterilizzazione degli alimenti che porta il suo nome?", options: ["Louis Pasteur", "Antoine Lavoisier", "Claude Bernard", "René Laennec"], answer: 0 },
+        { q: "In che anno si verificò il grave incidente nucleare alla centrale di Cernobyl?", options: ["1979", "1986", "1991", "1995"], answer: 1 },
+        { q: "Chi fu il principale leader del movimento per l'indipendenza dell'India basato sulla non-violenza?", options: ["Jawaharlal Nehru", "Mahatma Gandhi", "Subhas Chandra Bose", "Indira Gandhi"], answer: 1 },
+        { q: "In che anno l'India ottenne ufficialmente l'indipendenza dal Regno Unito?", options: ["1945", "1947", "1950", "1952"], answer: 1 },
+        { q: "Quale scienziato italiano ottenne il Premio Nobel per la Fisica nel 1938 per i suoi studi sulla radioattività indotta?", options: ["Guglielmo Marconi", "Enrico Fermi", "Ettore Majorana", "Alessandro Volta"], answer: 1 },
+        { q: "In quale città italiana fu fondata la casa automobilistica FIAT nel 1899?", options: ["Milano", "Torino", "Genova", "Bologna"], answer: 1 },
+        { q: "Chi fu il comandante della famosa 'Spedizione dei Mille' nel 1860?", options: ["Giuseppe Mazzini", "Camillo Benso di Cavour", "Giuseppe Garibaldi", "Vittorio Emanuele II"], answer: 2 },
+        { q: "In quale anno avvenne la storica battaglia di Waterloo in cui Napoleone fu definitivamente sconfitto?", options: ["1805", "1812", "1815", "1821"], answer: 2 },
+        { q: "Su quale isola dell'Oceano Atlantico morì in esilio Napoleone Bonaparte nel 1821?", options: ["Isola d'Elba", "Sant'Elena", "Corsica", "Sardegna"], answer: 1 },
+        { q: "In quale anno si aprì il Congresso di Vienna per ridefinire l'assetto dell'Europa dopo le guerre napoleoniche?", options: ["1814", "1820", "1830", "1848"], answer: 0 },
+        { q: "Quale fisico britannico ha formulato la legge di gravitazione universale e le tre leggi della dinamica?", options: ["Galileo Galilei", "Isaac Newton", "Michael Faraday", "James Clerk Maxwell"], answer: 1 },
+        { q: "Chi dipinse il celebre quadro d'avanguardia 'Guernica' nel 1937 per denunciare gli orrori della guerra civile spagnola?", options: ["Salvador Dalí", "Pablo Picasso", "Joan Miró", "Francisco Goya"], answer: 1 },
+        { q: "In quale anno scoppiò la Guerra Civile Spagnola?", options: ["1931", "1936", "1939", "1941"], answer: 1 },
+        { q: "Chi fu il dittatore che guidò la Spagna dal termine della Guerra Civile fino alla sua morte nel 1975?", options: ["Primo de Rivera", "Francisco Franco", "Antonio de Oliveira Salazar", "Juan Carlos"], answer: 1 },
+        { q: "In quale città si tenne lo storico processo ai gerarchi nazisti al termine della Seconda Guerra Mondiale?", options: ["Norimberga", "Berlino", "Monaco di Baviera", "Francoforte"], answer: 0 },
+        { q: "Quale fu la prima sonda spaziale lanciata in orbita dall'Unione Sovietica nel 1957?", options: ["Apollo 1", "Sputnik 1", "Vostok 1", "Explorer 1"], answer: 1 },
+        { q: "Chi fu il primo essere umano a viaggiare nello spazio nel 1961?", options: ["Neil Armstrong", "Jurij Gagarin", "Buzz Aldrin", "John Glenn"], answer: 1 },
+        { q: "In quale anno fu firmato l'Armistizio di Cassibile tra l'Italia e le forze alleate durante la Seconda Guerra Mondiale?", options: ["1942", "1943", "1944", "1945"], answer: 1 },
+        { q: "Quale fisico italiano inventò la pila elettrica nel 1799?", options: ["Luigi Galvani", "Alessandro Volta", "Evangelista Torricelli", "Guglielmo Marconi"], answer: 1 },
+        { q: "Quale canale artificiale inaugurato nel 1869 collega il Mar Mediterraneo con il Mar Rosso?", options: ["Canale di Panama", "Canale di Suez", "Canale di Corinto", "Canale di Kiel"], answer: 1 }
     ];
 
     // Variabili di stato del gioco
@@ -327,7 +391,7 @@
     let score = 0;
     let userAnswers = [];
 
-    const TOTAL_QUESTIONS = 10; // Impostato a 10 domande per partita
+    const TOTAL_QUESTIONS = 10; // Partita da 10 domande alla volta
 
     // Funzione per pescare N domande a caso
     function getRandomQuestions(array, n) {
@@ -414,6 +478,26 @@
     function showResults() {
         showScreen('result-screen');
         document.getElementById('score-display').innerText = `Il tuo punteggio: ${score} / ${TOTAL_QUESTIONS}`;
+
+        // Calcolo del giudizio finale
+        const evalBox = document.getElementById('evaluation-display');
+        if (score <= 4) {
+            evalBox.innerText = "Giudizio: Insufficiente! 😅 Serve ripassare un po' di storia e cultura generale.";
+            evalBox.style.color = "#dc3545";
+            evalBox.style.backgroundColor = "#f8d7da";
+        } else if (score <= 6) {
+            evalBox.innerText = "Giudizio: Sufficiente / Mediocre! 🙂 Te la cavi, ma puoi fare di meglio.";
+            evalBox.style.color = "#856404";
+            evalBox.style.backgroundColor = "#fff3cd";
+        } else if (score <= 8) {
+            evalBox.innerText = "Giudizio: Bravo! 👏 Ottima conoscenza di cultura generale!";
+            evalBox.style.color = "#004085";
+            evalBox.style.backgroundColor = "#cce5ff";
+        } else {
+            evalBox.innerText = "Giudizio: Complimenti! 🏆 Un vero esperto di cultura generale!";
+            evalBox.style.color = "#155724";
+            evalBox.style.backgroundColor = "#d4edda";
+        }
 
         const reviewContainer = document.getElementById('review-container');
         reviewContainer.innerHTML = '<h3>Riepilogo Risposte:</h3>';
