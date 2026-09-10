@@ -5,329 +5,435 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz di Cultura Generale</title>
     <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --primary-color: #007bff;
+            --primary-hover: #0056b3;
+            --correct-color: #28a745;
+            --wrong-color: #dc3545;
+            --border-color: #e0e0e0;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
-            color: #333;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            margin: 0;
-            padding: 20px;
+            box-sizing: border-box;
         }
-        .container {
-            background-color: #ffffff;
+
+        .quiz-container {
+            background-color: var(--card-bg);
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            width: 100%;
             max-width: 600px;
+            width: 100%;
             padding: 30px;
             box-sizing: border-box;
         }
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 20px;
+
+        .screen {
+            display: none;
         }
+
+        .screen.active {
+            display: block;
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin-top: 0;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s;
+            margin-top: 15px;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
         .progress {
-            font-size: 0.9em;
-            color: #7f8c8d;
-            margin-bottom: 15px;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
             text-align: right;
         }
-        .question {
-            font-size: 1.2em;
+
+        .question-text {
+            font-size: 18px;
             font-weight: 600;
             margin-bottom: 20px;
-            color: #34495e;
+            line-height: 1.4;
         }
-        .options {
+
+        .options-container {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
-        .btn-option {
-            background-color: #ecf0f1;
-            border: 2px solid #bdc3c7;
-            border-radius: 8px;
+
+        .option-btn {
+            background-color: #f8f9fa;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
             padding: 12px 15px;
-            font-size: 1em;
+            font-size: 15px;
             text-align: left;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.2s;
         }
-        .btn-option:hover {
-            background-color: #3498db;
-            color: #fff;
-            border-color: #2980b9;
+
+        .option-btn:hover:not([disabled]) {
+            background-color: #e2e6ea;
+            border-color: #dae0e5;
         }
-        .result-screen {
+
+        .option-btn.correct {
+            background-color: #d4edda;
+            border-color: var(--correct-color);
+            color: #155724;
+            font-weight: bold;
+        }
+
+        .option-btn.wrong {
+            background-color: #f8d7da;
+            border-color: var(--wrong-color);
+            color: #721c24;
+        }
+
+        .option-btn[disabled] {
+            cursor: default;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            font-weight: bold;
             text-align: center;
+            min-height: 24px;
         }
-        .score {
-            font-size: 2em;
+
+        .score-display {
+            font-size: 24px;
+            text-align: center;
+            margin: 20px 0;
             font-weight: bold;
-            color: #27ae60;
-            margin: 15px 0;
         }
-        .level-badge {
-            font-size: 1.3em;
-            font-weight: bold;
-            padding: 10px 15px;
-            background-color: #f39c12;
-            color: white;
-            border-radius: 20px;
-            display: inline-block;
-            margin-bottom: 20px;
+
+        .review-list {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
         }
-        .btn-restart {
-            background-color: #2ea44f;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            font-size: 1.1em;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s;
+
+        .review-item {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
         }
-        .btn-restart:hover {
-            background-color: #2c974b;
+
+        .review-item.correct-item {
+            border-left: 4px solid var(--correct-color);
+            padding-left: 10px;
         }
-        .hide {
-            display: none;
+
+        .review-item.wrong-item {
+            border-left: 4px solid var(--wrong-color);
+            padding-left: 10px;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Quiz di Cultura Generale</h1>
-    
-    <!-- Schermata Quiz -->
-    <div id="quiz-screen">
-        <div class="progress" id="progress">Domanda 1 di 20</div>
-        <div class="question" id="question-text">Testo della domanda...</div>
-        <div class="options" id="options-container">
-            <!-- Bottoni opzioni generati dinamicamente -->
-        </div>
+<div class="quiz-container">
+    <!-- Schermata Iniziale -->
+    <div id="start-screen" class="screen active">
+        <h1>Quiz di Cultura Generale</h1>
+        <p style="text-align: center; color: #666;">Metti alla prova le tue conoscenze! Rispondi a 10 domande estratte casualmente.</p>
+        <button class="btn" onclick="startQuiz()">Inizia il Quiz</button>
     </div>
 
-    <!-- Schermata Risultato -->
-    <div id="result-screen" class="result-screen hide">
-        <h2>Risultato Finale</h2>
-        <p>Hai risposto correttamente a:</p>
-        <div class="score" id="final-score">0 / 20</div>
-        <p>Il tuo livello di cultura è:</p>
-        <div class="level-badge" id="culture-level">-</div>
-        <br><br>
-        <button class="btn-restart" onclick="startQuiz()">Gioca di Nuovo 🔄</button>
+    <!-- Schermata Domanda -->
+    <div id="quiz-screen" class="screen">
+        <div class="progress" id="progress">Domanda 1 di 10</div>
+        <div class="question-text" id="question-text">Testo della domanda...</div>
+        <div class="options-container" id="options-container">
+            <!-- Le opzioni verranno inserite via JS -->
+        </div>
+        <div class="feedback" id="feedback"></div>
+        <button class="btn" id="next-btn" style="display: none;" onclick="nextQuestion()">Prossima Domanda</button>
+    </div>
+
+    <!-- Schermata Finale -->
+    <div id="result-screen" class="screen">
+        <h2>Quiz Completato!</h2>
+        <div class="score-display" id="score-display">Il tuo punteggio: 0 / 10</div>
+        <div id="review-container" class="review-list">
+            <!-- Riepilogo risposte -->
+        </div>
+        <button class="btn" onclick="startQuiz()">Ricomincia Nuovo Quiz</button>
     </div>
 </div>
 
 <script>
-// Database di 120 domande
-const rawDatabase = [
-    { q: "Qual è la capitale della Francia?", options: ["Lione", "Marsiglia", "Parigi", "Bordeaux"], correct: 2 },
-    { q: "Quale pianeta è noto come il 'Pianeta Rosso'?", options: ["Venere", "Marte", "Giove", "Saturno"], correct: 1 },
-    { q: "Chi ha dipinto la celebre 'Gioconda'?", options: ["Michelangelo Buonarroti", "Raffaello Sanzio", "Leonardo da Vinci", "Donatello"], correct: 2 },
-    { q: "Qual è l'oceano più grande della Terra?", options: ["Oceano Atlantico", "Oceano Indiano", "Oceano Pacifico", "Oceano Artico"], correct: 2 },
-    { q: "In quale continente si trova il fiume Rio delle Amazzoni?", options: ["Africa", "Asia", "America del Sud", "Australia"], correct: 2 },
-    { q: "Quanti sono i giorni in un anno bisestile?", options: ["364", "365", "366", "367"], correct: 2 },
-    { q: "Quale organo del corpo umano pompa il sangue?", options: ["Il cervello", "I polmoni", "Il fegato", "Il cuore"], correct: 3 },
-    { q: "Chi scrisse la 'Divina Commedia'?", options: ["Francesco Petrarca", "Giovanni Boccaccio", "Dante Alighieri", "Alessandro Manzoni"], correct: 2 },
-    { q: "Qual è la capitale della Spagna?", options: ["Barcellona", "Madrid", "Siviglia", "Valencia"], correct: 1 },
-    { q: "Quale gas respiriamo per sopravvivere?", options: ["Anidride carbonica", "Ossigeno", "Azoto", "Idrogeno"], correct: 1 },
-    { q: "In quale anno è iniziata la Prima Guerra Mondiale?", options: ["1914", "1918", "1939", "1945"], correct: 0 },
-    { q: "Qual è lo stato più grande del mondo per superficie?", options: ["Canada", "Stati Uniti", "Cina", "Russia"], correct: 3 },
-    { q: "Quanti elementi compongono una squadra di calcio in campo durante una partita?", options: ["9", "10", "11", "12"], correct: 2 },
-    { q: "Quale metallo ha come simbolo chimico 'Au'?", options: ["Argento", "Oro", "Rame", "Ferro"], correct: 1 },
-    { q: "Qual è la lingua ufficiale del Brasile?", options: ["Spagnolo", "Portoghese", "Francese", "Inglese"], correct: 1 },
-    { q: "Quale vulcano si trova vicino alla città di Napoli?", options: ["Etna", "Vesuvio", "Stromboli", "Vulcano"], correct: 1 },
-    { q: "Chi fu il primo uomo a camminare sulla Luna?", options: ["Yuri Gagarin", "Buzz Aldrin", "Neil Armstrong", "John Glenn"], correct: 2 },
-    { q: "Quale animale è noto per essere il più veloce sulla terraferma?", options: ["Leone", "Ghepardo", "Antilope", "Cavallo"], correct: 1 },
-    { q: "Qual è il colore che si ottiene mescolando il giallo e il blu?", options: ["Verde", "Arancione", "Viola", "Marrone"], correct: 0 },
-    { q: "Quale scienziato ha formulato la teoria della relatività?", options: ["Isaac Newton", "Albert Einstein", "Galileo Galilei", "Nikola Tesla"], correct: 1 },
-    { q: "Qual è la capitale d'Italia?", options: ["Milano", "Firenze", "Roma", "Napoli"], correct: 2 },
-    { q: "Quante sono le corde di una chitarra classica standard?", options: ["4", "5", "6", "7"], correct: 2 },
-    { q: "Qual è l'ingrediente principale della vera pizza Margherita insieme al pomodoro e al basilico?", options: ["Mozzarella", "Parmigiano", "Fontina", "Gorgonzola"], correct: 0 },
-    { q: "Quale paese ha la forma di uno stivale?", options: ["Grecia", "Italia", "Portogallo", "Croazia"], correct: 1 },
-    { q: "Quanti minuti ci sono in un'ora?", options: ["50", "60", "90", "100"], correct: 1 },
-    { q: "Quale nazionale di calcio ha vinto il Mondiale del 2026?", options: ["Argentina", "Francia", "Spagna", "Brasile"], correct: 2 },
-    { q: "Quale squadra di calcio ha vinto la Champions League nella stagione 2025-2026 a Budapest?", options: ["Real Madrid", "Arsenal", "Manchester City", "Paris Saint-Germain"], correct: 3 },
-    { q: "Quanti Palloni d'Oro ha vinto in carriera Lionel Messi?", options: ["5", "7", "8", "9"], correct: 2 },
-    { q: "Quale squadra ha vinto più volte la Champions League nella storia del calcio?", options: ["Milan", "Real Madrid", "Liverpool", "Bayern Monaco"], correct: 1 },
-    { q: "Chi è il marcatore più prolifico nella storia della nazionale di calcio italiana?", options: ["Alessandro Del Piero", "Francesco Totti", "Gigi Riva", "Roberto Baggio"], correct: 2 },
-    { q: "In quale sport si assegna il famoso trofeo della 'Coppa Davis'?", options: ["Rugby", "Tennis", "Pallanuoto", "Golf"], correct: 1 },
-    { q: "Quale pilota detiene il record del maggior numero di Mondiali di F1 vinti (7), a pari merito con Schumacher?", options: ["Lewis Hamilton", "Max Verstappen", "Sebastian Vettel", "Fernando Alonso"], correct: 0 },
-    { q: "Quanti minuti dura una normale partita di basket NBA (esclusi supplementari)?", options: ["40 minuti", "45 minuti", "48 minuti", "60 minuti"], correct: 2 },
-    { q: "Di quale nazionalità è il campione di tennis Jannik Sinner?", options: ["Austriaca", "Italiana", "Svizzera", "Tedesca"], correct: 1 },
-    { q: "Quanti anelli olimpici ci sono sulla bandiera ufficiale dei Giochi?", options: ["4", "5", "6", "7"], correct: 1 },
-    { q: "Chi è l'autore della celebre opera teatrale 'Amleto'?", options: ["Charles Dickens", "William Shakespeare", "Dante Alighieri", "Oscar Wilde"], correct: 1 },
-    { q: "Quale organo del corpo umano produce l'insulina?", options: ["Il fegato", "Il pancreas", "I reni", "La milza"], correct: 1 },
-    { q: "Qual è lo strumento musicale a fiato tipico della Scozia?", options: ["Cornamusa", "Flauto traverso", "Tromba", "Clarinetto"], correct: 0 },
-    { q: "Quale paese europeo è bagnato dall'Oceano Atlantico e confina solo con la Spagna?", options: ["Portogallo", "Francia", "Italia", "Marocco"], correct: 0 },
-    { q: "In che anno è caduto il muro di Berlino?", options: ["1945", "1961", "1989", "2001"], correct: 2 },
-    { q: "Qual è la capitale della Germania?", options: ["Monaco", "Francoforte", "Berlino", "Amburgo"], correct: 2 },
-    { q: "Quale parte del corpo umano è formata da incisivi, canini, premolari e molari?", options: ["La mano", "L'occhio", "I denti", "L'orecchio"], correct: 2 },
-    { q: "Chi ha scritto il romanzo d'avventura 'Ventimila leghe sotto i mari'?", options: ["Jules Verne", "Emilio Salgari", "Arthur Conan Doyle", "Robert Louis Stevenson"], correct: 0 },
-    { q: "Qual è l'isola più grande del Mar Mediterraneo?", options: ["Sardegna", "Cipro", "Corsica", "Sicilia"], correct: 3 },
-    { q: "Quale scienziato scoprì la gravità guardando cadere una mela?", options: ["Isaac Newton", "Albert Einstein", "Galileo Galilei", "Stephen Hawking"], correct: 0 },
-    { q: "Qual è il metallo più prezioso e malleabile con numero atomico 79?", options: ["Argento", "Platino", "Rame", "Oro"], correct: 3 },
-    { q: "Qual è la capitale del Giappone?", options: ["Pechino", "Seul", "Tokyo", "Kyoto"], correct: 2 },
-    { q: "Quale supereroe dei fumetti è anche conosciuto come il 'Cavaliere Oscuro'?", options: ["Spider-Man", "Batman", "Superman", "Iron Man"], correct: 1 },
-    { q: "Come si chiama il triangolo che ha tutti e tre i lati della stessa lunghezza?", options: ["Isoscele", "Scaleno", "Equilatero", "Rettangolo"], correct: 2 },
-    { q: "Quale inventore è associato allo sviluppo della lampadina a incandescenza commerciale?", options: ["Nikola Tesla", "Thomas Edison", "Alexander Graham Bell", "Guglielmo Marconi"], correct: 1 },
-    { q: "Quale leggendario presentatore ha condotto lo storico quiz degli anni '70 'Rischiatutto'?", options: ["Pippo Baudo", "Mike Bongiorno", "Corrado", "Enzo Tortora"], correct: 1 },
-    { q: "Quale programma del sabato sera del 1974 fu condotto da Mina e Raffaella Carrà?", options: ["Canzonissima", "Milleluci", "Fantastico", "Studio Uno"], correct: 1 },
-    { q: "Chi era il conduttore dello show 'La Domenica Sportiva' e del quiz 'Portobello'?", options: ["Pippo Baudo", "Mike Bongiorno", "Enzo Tortora", "Corrado"], correct: 2 },
-    { q: "Quale celebre contenitore della domenica pomeriggio RAI è nato nel 1976 con Corrado?", options: ["Domenica In", "Buona Domenica", "Quelli che il calcio", "L'Eredità"], correct: 0 },
-    { q: "Quale anime giapponese ha fatto il suo debutto in Italia nel 1978 riscuotendo enorme successo?", options: ["Dragon Ball", "Goldrake / Atlas UFO Robot", "Pokémon", "Sailor Moon"], correct: 1 },
-    { q: "Qual è l'animale terrestre più grande del mondo?", options: ["Ippopotamo", "Rinoceronte", "Elefante africano", "Giraffa"], correct: 2 },
-    { q: "Quale metallo liquido a temperatura ambiente era usato nei vecchi termometri?", options: ["Piombo", "Mercurio", "Alluminio", "Zinco"], correct: 1 },
-    { q: "In quale città italiana si trova la famosa Torre Pendente?", options: ["Firenze", "Pisa", "Venezia", "Siena"], correct: 1 },
-    { q: "Quale personaggio delle fiabe vede il suo naso allungarsi quando dice una bugia?", options: ["Pinocchio", "Peter Pan", "Cenerentola", "Aladino"], correct: 0 },
-    { q: "Qual è la capitale del Regno Unito?", options: ["Edimburgo", "Dublino", "Londra", "Manchester"], correct: 2 },
-    { q: "Quale esploratore italiano ha raggiunto l'America nel 1492?", options: ["Marco Polo", "Amerigo Vespucci", "Cristoforo Colombo", "Giovanni da Verrazzano"], correct: 2 },
-    { q: "Quanti sono i colori dell'arcobaleno?", options: ["5", "6", "7", "8"], correct: 2 },
-    { q: "Qual è l'ingrediente principale del pesto alla genovese?", options: ["Prezzemolo", "Basilico", "Rosmarino", "Salvia"], correct: 1 },
-    { q: "Quale valuta si usa in Giappone?", options: ["Dollaro", "Yuan", "Yen", "Won"], correct: 2 },
-    { q: "Quale celebre scienziato ha scoperto la penicillina?", options: ["Alexander Fleming", "Louis Pasteur", "Marie Curie", "Albert Einstein"], correct: 0 },
-    { q: "In quale stato americano si trova la città di Los Angeles?", options: ["New York", "Florida", "Texas", "California"], correct: 3 },
-    { q: "Come si chiama il canale d'acqua artificiale che collega il Mediterraneo al Mar Rosso?", options: ["Canale di Panama", "Canale di Suez", "Stretto di Gibilterra", "Stretto di Bering"], correct: 1 },
-    { q: "Qual è il mammifero marino noto per essere il più grande animale mai esistito?", options: ["Orca", "Capodoglio", "Balenottera azzurra", "Squalo balena"], correct: 2 },
-    { q: "Quale festa si celebra in Italia il 2 giugno?", options: ["Festa della Liberazione", "Festa della Repubblica", "Festa del Lavoro", "Unità d'Italia"], correct: 1 },
-    { q: "Quale strumento musicale a tastiera possiede solitamente 88 tasti?", options: ["Organo", "Pianoforte", "Fisarmonica", "Clavicembalo"], correct: 1 },
-    { q: "Quale parte della pianta assorbe l'acqua e i nutrimenti dal terreno?", options: ["Le foglie", "Il fusto", "I fiori", "Le radici"], correct: 3 },
-    { q: "Quale paese europeo è famoso per i mulini a vento e i tulipani?", options: ["Paesi Bassi / Olanda", "Belgio", "Danimarca", "Svezia"], correct: 0 },
-    { q: "Quanti sono i gironi (o cantiche/regni) descritti nella Divina Commedia di Dante?", options: ["2", "3", "4", "7"], correct: 1 },
-    { q: "Quale gruppo pop svedese ha vinto l'Eurovision negli anni '70 con 'Waterloo'?", options: ["Queen", "ABBA", "Bee Gees", "Pink Floyd"], correct: 1 },
-    { q: "Quale famosissimo album dei Pink Floyd del 1973 mostra un prisma in copertina?", options: ["The Wall", "Wish You Were Here", "Animals", "The Dark Side of the Moon"], correct: 3 },
-    { q: "Quale chitarrista è l'autore di 'Layla' e 'Wonderful Tonight'?", options: ["Jimi Hendrix", "Eric Clapton", "Jimmy Page", "David Gilmour"], correct: 1 },
-    { q: "Quale artista giamaicano ha portato il reggae al successo con 'No Woman, No Cry'?", options: ["Bob Marley", "Peter Tosh", "Jimmy Cliff", "Shaggy"], correct: 0 },
-    { q: "Per cosa è famosa l'azienda britannica 'Marshall' nel mondo della musica?", options: ["Batterie", "Amplificatori", "Pianoforti", "Microfoni"], correct: 1 },
-    { q: "Quale piano di riforme avviò Franklin D. Roosevelt durante la Grande Depressione?", options: ["Piano Marshall", "New Deal", "Great Society", "Fair Deal"], correct: 1 },
-    { q: "Quanti anni dura in carica il Presidente della Repubblica Italiana?", options: ["4 anni", "5 anni", "7 anni", "9 anni"], correct: 2 },
-    { q: "Quale fiume è il più lungo d'Italia?", options: ["Tevere", "Adige", "Arno", "Po"], correct: 3 },
-    { q: "In quale città si trova la Galleria degli Uffizi?", options: ["Roma", "Milano", "Firenze", "Venezia"], correct: 2 },
-    { q: "Quale sostanza permette alle piante di effettuare la fotosintesi?", options: ["Clorofilla", "Emoglobina", "Melatonina", "Glucosio"], correct: 0 },
-    { q: "In quale anno si è conclusa la Seconda Guerra Mondiale?", options: ["1918", "1939", "1945", "1968"], correct: 2 },
-    { q: "Dove si trova l'originale del David scolpito da Michelangelo?", options: ["Musei Vaticani", "Louvre", "Galleria dell'Accademia (Firenze)", "Uffizi"], correct: 2 },
-    // 35 Nuove Domande
-    { q: "Qual è la capitale della Grecia?", options: ["Atene", "Salonicco", "Sassari", "Nicosia"], correct: 0 },
-    { q: "Quale celebre regista ha diretto il film 'La vita è bella'?", options: ["Federico Fellini", "Roberto Benigni", "Bernardo Bertolucci", "Paolo Sorrentino"], correct: 1 },
-    { q: "In quale città si trova la celebre Cattedrale di Notre-Dame?", options: ["Lione", "Parigi", "Marsiglia", "Nizza"], correct: 1 },
-    { q: "Qual è l'uccello noto per essere incapace di volare ed è nativo dell'Antartide?", options: ["Albatro", "Pinguino", "Gabbiano", "Pellicano"], correct: 1 },
-    { q: "Quale scienziata fu la prima donna a vincere il Premio Nobel (e l'unica in due campi diversi)?", options: ["Rosalind Franklin", "Marie Curie", "Rita Levi-Montalcini", "Lise Meitner"], correct: 1 },
-    { q: "In quale città italiana si svolge lo storico palio equestre tra le Contrade?", options: ["Arezzo", "Lucca", "Siena", "Perugia"], correct: 2 },
-    { q: "Qual è il deserto caldo più grande del mondo?", options: ["Deserto del Gobi", "Deserto del Sahara", "Deserto di Atacama", "Deserto del Kalahari"], correct: 1 },
-    { q: "Chi è l'autore delle favole 'La Sirenetta' e 'Il brutto anatroccolo'?", options: ["Fratelli Grimm", "Hans Christian Andersen", "Charles Perrault", "Gianni Rodari"], correct: 1 },
-    { q: "Quale cantante italiana è famosa per successi storici come 'Minuetto' e 'Almeno tu nell'universo'?", options: ["Mina", "Mia Martini", "Loredana Bertè", "Ornella Vanoni"], correct: 1 },
-    { q: "In quale stato si trovano i famosi megaliti di Stonehenge?", options: ["Irlanda", "Scozia", "Inghilterra", "Galles"], correct: 2 },
-    { q: "Quale re Mida della mitologia greca trasformava in cosa qualunque toccasse?", options: ["Ferro", "Argento", "Bronzo", "Oro"], correct: 3 },
-    { q: "Quale scultore ha realizzato il famoso 'Pensatore'?", options: ["Auguste Rodin", "Antonio Canova", "Gian Lorenzo Bernini", "Donatello"], correct: 0 },
-    { q: "In quale anno fu scoperto il continente americano da Cristoforo Colombo?", options: ["1291", "1492", "1515", "1789"], correct: 1 },
-    { q: "Qual è il gas nobile presente in abbondanza nell'atmosfera terrestre dopo l'azoto e l'ossigeno?", options: ["Elio", "Neon", "Argon", "Kripton"], correct: 2 },
-    { q: "Quale gruppo musicale britannico ha inciso il brano 'Hey Jude'?", options: ["The Rolling Stones", "The Beatles", "The Who", "The Kinks"], correct: 1 },
-    { q: "Quale animale è il simbolo nazionale della Cina?", options: ["Tigre", "Panda gigante", "Dragone", "Orso bruno"], correct: 1 },
-    { q: "Qual è la capitale della Svizzera?", options: ["Zurigo", "Ginevra", "Berna", "Basilea"], correct: 2 },
-    { q: "Chi era il dio greco del mare e delle acque?", options: ["Zeus", "Ades", "Poseidone", "Ares"], correct: 2 },
-    { q: "Quale catena montuosa separa l'Europa dall'Asia?", options: ["Alpi", "Pirenei", "Monti Urali", "Carpazi"], correct: 2 },
-    { q: "Quale noto attore ha interpretato il capitano Jack Sparrow nei film 'I Pirati dei Caraibi'?", options: ["Brad Pitt", "Johnny Depp", "Tom Cruise", "Leonardo DiCaprio"], correct: 1 },
-    { q: "Qual è il fiume più lungo del mondo?", options: ["Mississippi", "Nilo", "Rio delle Amazzoni", "Danubio"], correct: 2 },
-    { q: "In quale città italiana si può visitare la famosa Cappella degli Scrovegni affrescata da Giotto?", options: ["Verona", "Padova", "Vicenza", "Treviso"], correct: 1 },
-    { q: "Come si chiama l'unita di misura della frequenza equivalente a un ciclo al secondo?", options: ["Watt", "Volt", "Hertz", "Joule"], correct: 2 },
-    { q: "Quale commediografo ateniese scrisse 'Le nuvole' e 'Le rane'?", options: ["Aristofane", "Sofocle", "Euripide", "Eschilo"], correct: 0 },
-    { q: "Chi è l'autore del dipinto 'Urlo' (1893)?", options: ["Vincent van Gogh", "Edvard Munch", "Paul Gauguin", "Claude Monet"], correct: 1 },
-    { q: "Qual è il secondo pianeta più vicino al Sole?", options: ["Mercurio", "Venere", "Terra", "Marte"], correct: 1 },
-    { q: "In quale paese nacque il compositore Wolfgang Amadeus Mozart?", options: ["Germania", "Austria", "Ungheria", "Svizzera"], correct: 1 },
-    { q: "Come si chiama l'imponente anfiteatro romano simbolo della città di Roma?", options: ["Circo Massimo", "Colosseo", "Pantheon", "Foro Romano"], correct: 1 },
-    { q: "Quale continente ha la popolazione più numerosa del pianeta?", options: ["Africa", "Asia", "Europa", "America"], correct: 1 },
-    { q: "Quale re inglese si separò dalla Chiesa Cattolica creando la Chiesa d'Inghilterra?", options: ["Enrico VIII", "Carlo I", "Giacomo I", "Riccardo III"], correct: 0 },
-    { q: "Quale celebre regista ha diretto 'Pulp Fiction' e 'Django Unchained'?", options: ["Steven Spielberg", "Quentin Tarantino", "Martin Scorsese", "Christopher Nolan"], correct: 1 },
-    { q: "Quale isola del Mediterraneo ha come capitale la città di La Valletta?", options: ["Cipro", "Malta", "Maiorca", "Rodi"], correct: 1 },
-    { q: "Chi ha scritto 'I promessi sposi'?", options: ["Giacomo Leopardi", "Alessandro Manzoni", "Giovanni Verga", "Giosuè Carducci"], correct: 1 },
-    { q: "Quale minerale rappresenta il grado 10 (il più duro) della scala di Mohs?", options: ["Quarzo", "Rubino", "Smeraldo", "Diamante"], correct: 3 },
-    { q: "Qual è la valuta ufficiale in uso nel Regno Unito?", options: ["Euro", "Sterlina britannica", "Franco", "Corona"], correct: 1 }
-];
+    // Banca Dati Domande (120 Domande)
+    const questionBank = [
+        { q: "Qual è la capitale della Francia?", options: ["Londra", "Parigi", "Berlino", "Madrid"], answer: 1 },
+        { q: "Quale pianeta è noto come il Pianeta Rosso?", options: ["Venere", "Giove", "Marte", "Saturno"], answer: 2 },
+        { q: "Chi ha dipinto la Gioconda?", options: ["Michelangelo", "Raffaello", "Leonardo da Vinci", "Donatello"], answer: 2 },
+        { q: "Qual è l'oceano più grande del mondo?", options: ["Oceano Atlantico", "Oceano Indiano", "Oceano Pacifico", "Oceano Artico"], answer: 2 },
+        { q: "In quale anno è caduto il muro di Berlino?", options: ["1987", "1989", "1991", "1979"], answer: 1 },
+        { q: "Qual è il metallo con il simbolo chimico 'Au'?", options: ["Argento", "Oro", "Rame", "Alluminio"], answer: 1 },
+        { q: "Quanti elementi ci sono nella tavola periodica?", options: ["108", "118", "128", "100"], answer: 1 },
+        { q: "Chi ha scritto 'I Promessi Sposi'?", options: ["Giacomo Leopardi", "Alessandro Manzoni", "Dante Alighieri", "Giovanni Boccaccio"], answer: 1 },
+        { q: "Qual è il fiume più lungo del mondo?", options: ["Rio delle Amazzoni", "Nilo", "Mississippi", "Yangtze"], answer: 0 },
+        { q: "In quale città si trova il Colosseo?", options: ["Milano", "Napoli", "Roma", "Firenze"], answer: 2 },
+        { q: "Quale gas costituisce la maggior parte dell'atmosfera terrestre?", options: ["Ossigeno", "Anidride Carbonica", "Azoto", "Idrogeno"], answer: 2 },
+        { q: "Chi ha scoperto la penicillina?", options: ["Alexander Fleming", "Louis Pasteur", "Marie Curie", "Albert Einstein"], answer: 0 },
+        { q: "Qual è la capitale del Giappone?", options: ["Pechino", "Seoul", "Tokyo", "Bangkok"], answer: 2 },
+        { q: "In che anno è iniziata la Seconda Guerra Mondiale?", options: ["1914", "1939", "1945", "1918"], answer: 1 },
+        { q: "Qual è il primo libro della Bibbia?", options: ["Esodo", "Levitico", "Genesi", "Numeri"], answer: 2 },
+        { q: "Chi ha formulato la teoria della relatività?", options: ["Isaac Newton", "Galileo Galilei", "Albert Einstein", "Nikola Tesla"], answer: 2 },
+        { q: "Qual è l'isola più grande del mondo?", options: ["Madagascar", "Groenlandia", "Australia", "Borneo"], answer: 1 },
+        { q: "Quale animale è noto per essere il più veloce sulla terraferma?", options: ["Ghepardo", "Leone", "Gazzella", "Falco pellegrino"], answer: 0 },
+        { q: "Quanti denti ha un adulto umano in condizioni normali?", options: ["28", "30", "32", "36"], answer: 2 },
+        { q: "Qual è la capitale della Spagna?", options: ["Barcellona", "Siviglia", "Valencia", "Madrid"], answer: 3 },
+        { q: "Chi fu il primo imperatore romano?", options: ["Giulio Cesare", "Augusto", "Nerone", "Marco Aurelio"], answer: 1 },
+        { q: "Quale organo produce l'insulina nel corpo umano?", options: ["Fegato", "Reni", "Pancreas", "Stomaco"], answer: 2 },
+        { q: "Qual è la montagna più alta del mondo?", options: ["K2", "Monte Bianco", "Everest", "Kilimangiaro"], answer: 2 },
+        { q: "Chi ha scritto 'La Divina Commedia'?", options: ["Francesco Petrarca", "Dante Alighieri", "Giovanni Boccaccio", "Ugo Foscolo"], answer: 1 },
+        { q: "Qual è la valuta ufficiale del Regno Unito?", options: ["Euro", "Dollaro", "Sterlina Britannica", "Franco"], answer: 2 },
+        { q: "Quale paese ha la popolazione più numerosa al mondo?", options: ["Stati Uniti", "India", "Cina", "Brasile"], answer: 1 },
+        { q: "In quale continente si trova l'Egitto?", options: ["Asia", "Europa", "Africa", "America"], answer: 2 },
+        { q: "Qual è il simbolo chimico dell'acqua?", options: ["H2O", "CO2", "NaCl", "O2"], answer: 0 },
+        { q: "Chi ha dipinto la Cappella Sistina?", options: ["Leonardo da Vinci", "Michelangelo", "Raffaello", "Tiziano"], answer: 1 },
+        { q: "Quale pianeta è più vicino al Sole?", options: ["Venere", "Terra", "Mercurio", "Marte"], answer: 2 },
+        { q: "Qual è la capitale della Germania?", options: ["Monaco", "Francoforte", "Berlino", "Amburgo"], answer: 2 },
+        { q: "Chi ha inventato la lampadina a incandescenza commerciale?", options: ["Nikola Tesla", "Thomas Edison", "Alexander Graham Bell", "Guglielmo Marconi"], answer: 1 },
+        { q: "Quanti elementi formano una dozzina?", options: ["10", "12", "14", "6"], answer: 1 },
+        { q: "Qual è lo stato più grande del mondo per superficie?", options: ["Canada", "Cina", "Stati Uniti", "Russia"], answer: 3 },
+        { q: "Chi è considerato il padre della lingua italiana?", options: ["Alessandro Manzoni", "Dante Alighieri", "Francesco Petrarca", "Niccolò Machiavelli"], answer: 1 },
+        { q: "In che anno è stato lanciato il primo uomo sulla Luna?", options: ["1965", "1969", "1971", "1959"], answer: 1 },
+        { q: "Quale dei seguenti non è un colore primario nella pittura?", options: ["Rosso", "Blu", "Giallo", "Verde"], answer: 3 },
+        { q: "Qual è la capitale dell'Australia?", options: ["Sydney", "Melbourne", "Canberra", "Brisbane"], answer: 2 },
+        { q: "Quante corde ha una chitarra classica standard?", options: ["4", "5", "6", "8"], answer: 2 },
+        { q: "Quale sostanza rende verdi le foglie degli alberi?", options: ["Carotene", "Clorofilla", "Melanina", "Glucosio"], answer: 1 },
+        { q: "In quale città si trovano le famose Piramidi di Giza?", options: ["Alessandria", "Il Cairo (Giza)", "Luxor", "Aswan"], answer: 1 },
+        { q: "Qual è il deserto caldo più grande del mondo?", options: ["Deserto del Gobi", "Deserto del Sahara", "Deserto di Atacama", "Deserto di Kalahari"], answer: 1 },
+        { q: "Chi fu il primo presidente degli Stati Uniti?", options: ["Abraham Lincoln", "Thomas Jefferson", "George Washington", "John Adams"], answer: 2 },
+        { q: "Qual è il muscolo più forte del corpo umano in base alle dimensioni?", options: ["Bicipite", "Massetere (mandibola)", "Quadricipite", "Gluteo"], answer: 1 },
+        { q: "Quale paese ha vinto il primo Mondiale di Calcio nel 1930?", options: ["Brasile", "Italia", "Uruguay", "Argentina"], answer: 2 },
+        { q: "Qual è la capitale del Brasile?", options: ["Rio de Janeiro", "San Paolo", "Brasilia", "Salvador"], answer: 2 },
+        { q: "Chi ha composto le 'Quattro Stagioni'?", options: ["Johann Sebastian Bach", "Antonio Vivaldi", "Wolfgang Amadeus Mozart", "Ludwig van Beethoven"], answer: 1 },
+        { q: "Qual è l'elemento chimico più abbondante nell'universo?", options: ["Ossigeno", "Elio", "Idrogeno", "Carbonio"], answer: 2 },
+        { q: "In che anno è scoppiata la Prima Guerra Mondiale?", options: ["1914", "1918", "1939", "1905"], answer: 0 },
+        { q: "Qual è il mammifero più grande del mondo?", options: ["Elefante Africano", "Balenottera Azzurra", "Capodoglio", "Squalo Balena"], answer: 1 },
+        { q: "Qual è la capitale della Grecia?", options: ["Atene", "Salonicco", "Heraklion", "Patrasso"], answer: 0 },
+        { q: "Chi ha scritto la tragedia 'Amleto'?", options: ["William Shakespeare", "Molière", "Johann Wolfgang von Goethe", "Oscar Wilde"], answer: 0 },
+        { q: "Quale pianeta del sistema solare ha gli anelli più visibili?", options: ["Giove", "Urano", "Saturno", "Nettuno"], answer: 2 },
+        { q: "Qual è il simbolo chimico del Ferro?", options: ["Fe", "Fi", "F", "Fr"], answer: 0 },
+        { q: "In quale stato si trova la statua della Libertà?", options: ["California", "New York", "Florida", "Texas"], answer: 1 },
+        { q: "Quanti minuti ci sono in un giorno?", options: ["1200", "1440", "1600", "1800"], answer: 1 },
+        { q: "Chi è l'autore della pittura 'La Notte Stellata'?", options: ["Claude Monet", "Pablo Picasso", "Vincent van Gogh", "Salvador Dalí"], answer: 2 },
+        { q: "Qual è il Paese più piccolo del mondo?", options: ["Principato di Monaco", "Città del Vaticano", "San Marino", "Liechtenstein"], answer: 1 },
+        { q: "Che tipo di animale è una balena?", options: ["Pesce", "Rettile", "Mammifero", "Anfibio"], answer: 2 },
+        { q: "Qual è la capitale del Portogallo?", options: ["Porto", "Lisbona", "Coimbra", "Faro"], answer: 1 },
+        { q: "Chi ha scoperto l'America nel 1492?", options: ["Amerigo Vespucci", "Cristoforo Colombo", "Ferdinando Magellano", "Marco Polo"], answer: 1 },
+        { q: "Qual è il metallo più leggero tra i seguenti?", options: ["Litio", "Alluminio", "Ferro", "Piombo"], answer: 0 },
+        { q: "In che anno si sono svolte le prime Olimpiadi moderne?", options: ["1896", "1900", "1924", "1888"], answer: 0 },
+        { q: "Quale osso è il più lungo del corpo umano?", options: ["Omero", "Tibia", "Femore", "Radio"], answer: 2 },
+        { q: "Qual è la capitale dell'Olanda (Paesi Bassi)?", options: ["L'Aia", "Rotterdam", "Utrecht", "Amsterdam"], answer: 3 },
+        { q: "Chi ha scolpito il 'David' custodito a Firenze?", options: ["Donatello", "Michelangelo", "Bernini", "Canova"], answer: 1 },
+        { q: "Qual è la velocità della luce nel vuoto approssimativa?", options: ["300.000 km/s", "150.000 km/s", "500.000 km/s", "1.000.000 km/s"], answer: 0 },
+        { q: "Quale pianeta è chiamato la 'Stella del Mattino' o 'Stella della Sera'?", options: ["Marte", "Giove", "Venere", "Mercurio"], answer: 2 },
+        { q: "Quanti stati compongono gli Stati Uniti d'America?", options: ["48", "50", "52", "55"], answer: 1 },
+        { q: "Qual è la capitale del Canada?", options: ["Toronto", "Vancouver", "Montreal", "Ottawa"], answer: 3 },
+        { q: "Chi fu l'inventore del telefono?", options: ["Thomas Edison", "Alexander Graham Bell", "Antonio Meucci", "Nikola Tesla"], answer: 2 },
+        { q: "Qual è il mare più chiuso e salato del mondo?", options: ["Mar Rosso", "Mar Morto", "Mar Nero", "Mar Caspio"], answer: 1 },
+        { q: "Chi ha scritto 'L'Odissea'?", options: ["Erodoto", "Omero", "Virgilio", "Sofocle"], answer: 1 },
+        { q: "Quale gas è essenziale per la respirazione umana?", options: ["Azoto", "Anidride Carbonica", "Ossigeno", "Elio"], answer: 2 },
+        { q: "Qual è la capitale dell'Egitto?", options: ["Alessandria", "Il Cairo", "Giza", "Luxor"], answer: 1 },
+        { q: "In quale secolo è iniziato il Rinascimento in Italia?", options: ["XIII secolo", "XIV secolo", "XV secolo", "XVI secolo"], answer: 1 },
+        { q: "Qual è l'organo visivo del corpo umano?", options: ["Orecchio", "Naso", "Occhio", "Lingua"], answer: 2 },
+        { q: "Chi fu la prima donna a vincere un Premio Nobel?", options: ["Marie Curie", "Rosalind Franklin", "Ada Lovelace", "Florence Nightingale"], answer: 0 },
+        { q: "Qual è il fiume più lungo d'Italia?", options: ["Tevere", "Adige", "Po", "Arno"], answer: 2 },
+        { q: "In quale paese si trova la Grande Muraglia?", options: ["Giappone", "Corea del Sud", "Cina", "Mongolia"], answer: 2 },
+        { q: "Qual è la capitale dell'Argentina?", options: ["Buenos Aires", "Cordoba", "Rosario", "Mendoza"], answer: 0 },
+        { q: "Quanti lati ha un ottagono?", options: ["6", "7", "8", "10"], answer: 2 },
+        { q: "Quale pianeta è il più grande del sistema solare?", options: ["Saturno", "Nettuno", "Giove", "Uranio"], answer: 2 },
+        { q: "Chi ha dipinto 'I Girasoli'?", options: ["Claude Monet", "Vincent van Gogh", "Paul Gauguin", "Edouard Manet"], answer: 1 },
+        { q: "Qual è la stella più vicina alla Terra?", options: ["Alpha Centauri", "Sirio", "Il Sole", "Polaris"], answer: 2 },
+        
+        // Nuove 35 domande
+        { q: "Qual è la capitale della Scozia?", options: ["Glasgow", "Edimburgo", "Aberdeen", "Dundee"], answer: 1 },
+        { q: "Chi ha scritto '1984'?", options: ["Aldous Huxley", "George Orwell", "Ray Bradbury", "J.D. Salinger"], answer: 1 },
+        { q: "In quale anno è affondato il Titanic?", options: ["1905", "1912", "1918", "1923"], answer: 1 },
+        { q: "Qual è l'unità di misura della frequenza?", options: ["Hertz", "Watt", "Joule", "Volt"], answer: 0 },
+        { q: "Chi ha composto la Nona Sinfonia (Inno alla Gioia)?", options: ["Mozart", "Bach", "Beethoven", "Chopin"], answer: 2 },
+        { q: "Qual è la capitale della Svizzera?", options: ["Zurigo", "Ginevra", "Berna", "Basilea"], answer: 2 },
+        { q: "Quale stato americano è soprannominato 'Sunshine State'?", options: ["California", "Texas", "Florida", "Hawaii"], answer: 2 },
+        { q: "Quanti giocatori formano una squadra di pallavolo in campo?", options: ["5", "6", "7", "11"], answer: 1 },
+        { q: "In che anno è iniziata la Rivoluzione Francese?", options: ["1776", "1789", "1799", "1815"], answer: 1 },
+        { q: "Qual è la vitamina che si sintetizza principalmente con l'esposizione al sole?", options: ["Vitamina A", "Vitamina C", "Vitamina D", "Vitamina B12"], answer: 2 },
+        { q: "Chi ha scolpito la statua de 'Il Pensatore'?", options: ["Auguste Rodin", "Antonio Canova", "Gian Lorenzo Bernini", "Donatello"], answer: 0 },
+        { q: "Qual è la capitale della Russia?", options: ["San Pietroburgo", "Mosca", "Kazan", "Novosibirsk"], answer: 1 },
+        { q: "Qual è il lago più grande d'Italia?", options: ["Lago Maggiore", "Lago di Como", "Lago di Garda", "Lago Trasimeno"], answer: 2 },
+        { q: "Chi fu l'ultimo re d'Italia?", options: ["Vittorio Emanuele II", "Umberto II", "Vittorio Emanuele III", "Umberto I"], answer: 1 },
+        { q: "Quale metallo è liquido a temperatura ambiente?", options: ["Piombo", "Mercurio", "Stagno", "Gallio"], answer: 1 },
+        { q: "Qual è la capitale della Cina?", options: ["Shanghai", "Pechino", "Hong Kong", "Guangzhou"], answer: 1 },
+        { q: "Chi è l'autore del dipinto 'Il Grido'?", options: ["Edvard Munch", "Gustav Klimt", "Egon Schiele", "Wassily Kandinsky"], answer: 0 },
+        { q: "Qual è l'isola più grande del Mar Mediterraneo?", options: ["Sardegna", "Cipro", "Sicilia", "Creta"], answer: 2 },
+        { q: "In quale sport si assegna la 'Maglia Rosa'?", options: ["Giro d'Italia (Ciclismo)", "Tour de France", "Maratona", "Canottaggio"], answer: 0 },
+        { q: "Qual è il paese d'origine del sushi?", options: ["Cina", "Giappone", "Thailandia", "Vietnam"], answer: 1 },
+        { q: "Chi ha scisso per la prima volta l'atomo?", options: ["Ernest Rutherford", "Enrico Fermi", "Niels Bohr", "Marie Curie"], answer: 0 },
+        { q: "Qual è la capitale dell'Irlanda?", options: ["Belfast", "Dublino", "Cork", "Galway"], answer: 1 },
+        { q: "Qual è la fossa marina più profonda della Terra?", options: ["Fossa di Porto Rico", "Fossa delle Marianne", "Fossa di Giava", "Fossa delle Tonga"], answer: 1 },
+        { q: "Chi ha inventato il sistema di scrittura Braille per non vedenti?", options: ["Louis Braille", "Charles Barbier", "Helen Keller", "Samuel Morse"], answer: 0 },
+        { q: "Quale animale è conosciuto per la sua abilità di cambiare colore?", options: ["Iguana", "Camaleonte", "Geco", "Geco Leopardino"], answer: 1 },
+        { q: "Qual è la capitale della Svezia?", options: ["Oslo", "Helsinki", "Stoccolma", "Copenaghen"], answer: 2 },
+        { q: "Quanti anelli ci sono nel simbolo dei Giochi Olimpici?", options: ["4", "5", "6", "7"], answer: 1 },
+        { q: "In quale secolo ha vissuto Guglielmo Shakespeare?", options: ["XIV - XV secolo", "XVI - XVII secolo", "XVII - XVIII secolo", "XVIII - XIX secolo"], answer: 1 },
+        { q: "Qual è l'elemento chimico con simbolo 'K'?", options: ["Kripton", "Potassio", "Calcio", "Rame"], answer: 1 },
+        { q: "Qual è la capitale della Turchia?", options: ["Istanbul", "Ankara", "Izmir", "Bursa"], answer: 1 },
+        { q: "In quale città si trova il celebre museo 'Il Louvre'?", options: ["Londra", "Parigi", "Roma", "Amsterdam"], answer: 1 },
+        { q: "Qual è il rettile più grande del mondo?", options: ["Drago di Komodo", "Pitone reticolato", "Coccodrillo marino", "Anakonda verde"], answer: 2 },
+        { q: "Chi ha diretto il film 'La vita è bella'?", options: ["Federico Fellini", "Roberto Benigni", "Bernardo Bertolucci", "Paolo Sorrentino"], answer: 1 },
+        { q: "Qual è la capitale della Polonia?", options: ["Cracovia", "Varsavia", "Gdańsk", "Wrocław"], answer: 1 },
+        { q: "Quanti anni dura un secolo?", options: ["10", "50", "100", "1000"], answer: 2 }
+    ];
 
-let selectedQuestions = [];
-let currentQuestionIndex = 0;
-let score = 0;
+    // Variabili di stato del gioco
+    let selectedQuestions = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let userAnswers = [];
 
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+    const TOTAL_QUESTIONS = 10; // Impostato a 10 domande per partita
+
+    // Funzione per pescare N domande a caso
+    function getRandomQuestions(array, n) {
+        const shuffled = [...array].sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, n);
     }
-}
 
-function startQuiz() {
-    score = 0;
-    currentQuestionIndex = 0;
-    
-    // Mescola ed estrae 20 domande casuali su 120
-    let dbCopy = JSON.parse(JSON.stringify(rawDatabase));
-    shuffleArray(dbCopy);
-    selectedQuestions = dbCopy.slice(0, 20);
+    function startQuiz() {
+        selectedQuestions = getRandomQuestions(questionBank, TOTAL_QUESTIONS);
+        currentQuestionIndex = 0;
+        score = 0;
+        userAnswers = [];
 
-    document.getElementById('quiz-screen').classList.remove('hide');
-    document.getElementById('result-screen').classList.add('hide');
-    
-    showQuestion();
-}
-
-function showQuestion() {
-    const q = selectedQuestions[currentQuestionIndex];
-    document.getElementById('progress').innerText = `Domanda ${currentQuestionIndex + 1} di 20`;
-    document.getElementById('question-text').innerText = q.q;
-    
-    const optionsContainer = document.getElementById('options-container');
-    optionsContainer.innerHTML = '';
-
-    let opts = q.options.map((opt, index) => ({ text: opt, isCorrect: index === q.correct }));
-    shuffleArray(opts);
-
-    opts.forEach(option => {
-        const btn = document.createElement('button');
-        btn.className = 'btn-option';
-        btn.innerText = option.text;
-        btn.onclick = () => selectOption(option.isCorrect);
-        optionsContainer.appendChild(btn);
-    });
-}
-
-function selectOption(isCorrect) {
-    if (isCorrect) {
-        score++;
-    }
-    
-    currentQuestionIndex++;
-    if (currentQuestionIndex < 20) {
+        showScreen('quiz-screen');
         showQuestion();
-    } else {
-        showResults();
     }
-}
 
-function showResults() {
-    document.getElementById('quiz-screen').classList.add('hide');
-    document.getElementById('result-screen').classList.remove('hide');
-    
-    document.getElementById('final-score').innerText = `${score} / 20`;
-    
-    // Calcolo del livello culturale su 20 risposte
-    let level = "";
-    if (score === 20) level = "🏆 Genio Enciclopedico";
-    else if (score >= 16) level = "🧠 Cultura Superiore";
-    else if (score >= 12) level = "📚 Buona Cultura Generale";
-    else if (score >= 8) level = "🐣 Livello Base / In Erba";
-    else level = "✏️ Da Ripassare";
-    
-    document.getElementById('culture-level').innerText = level;
-}
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    }
 
-startQuiz();
+    function showQuestion() {
+        const qData = selectedQuestions[currentQuestionIndex];
+        
+        document.getElementById('progress').innerText = `Domanda ${currentQuestionIndex + 1} di ${TOTAL_QUESTIONS}`;
+        document.getElementById('question-text').innerText = qData.q;
+        document.getElementById('feedback').innerText = '';
+        document.getElementById('next-btn').style.display = 'none';
+
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+
+        qData.options.forEach((optText, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = optText;
+            btn.onclick = () => selectOption(index);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function selectOption(selectedIndex) {
+        const qData = selectedQuestions[currentQuestionIndex];
+        const buttons = document.querySelectorAll('.option-btn');
+        
+        // Disabilita tutti i bottoni
+        buttons.forEach(btn => btn.disabled = true);
+
+        const isCorrect = (selectedIndex === qData.answer);
+        
+        // Salva risposta
+        userAnswers.push({
+            question: qData.q,
+            selected: qData.options[selectedIndex],
+            correct: qData.options[qData.answer],
+            isCorrect: isCorrect
+        });
+
+        if (isCorrect) {
+            score++;
+            buttons[selectedIndex].classList.add('correct');
+            document.getElementById('feedback').innerText = "Corretto! 🎉";
+            document.getElementById('feedback').style.color = "var(--correct-color)";
+        } else {
+            buttons[selectedIndex].classList.add('wrong');
+            buttons[qData.answer].classList.add('correct');
+            document.getElementById('feedback').innerText = "Sbagliato! ❌";
+            document.getElementById('feedback').style.color = "var(--wrong-color)";
+        }
+
+        document.getElementById('next-btn').style.display = 'block';
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < TOTAL_QUESTIONS) {
+            showQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        showScreen('result-screen');
+        document.getElementById('score-display').innerText = `Il tuo punteggio: ${score} / ${TOTAL_QUESTIONS}`;
+
+        const reviewContainer = document.getElementById('review-container');
+        reviewContainer.innerHTML = '<h3>Riepilogo Risposte:</h3>';
+
+        userAnswers.forEach((item, idx) => {
+            const div = document.createElement('div');
+            div.className = `review-item ${item.isCorrect ? 'correct-item' : 'wrong-item'}`;
+            
+            let content = `<strong>${idx + 1}. ${item.question}</strong><br>`;
+            if (item.isCorrect) {
+                content += `<span style="color: var(--correct-color)">Risposta: ${item.selected} ✔</span>`;
+            } else {
+                content += `<span style="color: var(--wrong-color)">Tua risposta: ${item.selected} ✖</span><br>`;
+                content += `<span style="color: var(--correct-color)">Risposta corretta: ${item.correct}</span>`;
+            }
+            
+            div.innerHTML = content;
+            reviewContainer.appendChild(div);
+        });
+    }
 </script>
 
 </body>
